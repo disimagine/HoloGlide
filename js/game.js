@@ -98,6 +98,57 @@ var scene,
 var HEIGHT, WIDTH,
     mousePos = { x: 0, y: 0 };
 
+var views = [
+  { 
+    name: "right-side-view",
+    left: 0.5+8/41.6,
+    top: 0,
+    width: 10/41.6,
+    height: 16/26,
+    background: "#000000",
+    eye: [ 0, 0, -300 ], 
+    up: [ -1, 0, 0 ],
+    fov: 50,
+    updateCamera: function ( camera, scene, mouseX, mouseY ) {
+      camera.position.x += mouseX * 0.05;
+      camera.position.x = Math.max( Math.min( camera.position.x, 2000 ), -2000 );
+      camera.lookAt( scene.position );
+    }
+  },
+  {
+    name: "front-view",
+    left: 0.5-8/41.6,
+    top: 16/26,
+    width: 16/41.6,
+    height: 10/26,
+    background: "#000000",
+    eye: [ -200, 0, 0 ], //往前飛
+    up: [ 0, -1, 0 ],
+    fov: 50,
+    updateCamera: function ( camera, scene, mouseX, mouseY ) {
+      camera.position.x -= mouseX * 0.05;
+      camera.position.x = Math.max( Math.min( camera.position.x, 2000 ), -2000 );
+      camera.lookAt( camera.position.clone().setY( 0 ) );
+    }
+  },
+  {
+    name: "left-side-view",
+    left: 0.5-18/41.6,
+    top: 0,
+    width: 10/41.6,
+    height: 16/26,
+    background: "#000000",
+    eye: [ 0, 0, 300 ], //the plane flies from left to right in game; flies from right to left in hologram
+    up: [ -1, 0, 0 ],
+    fov: 50,
+    updateCamera: function ( camera, scene, mouseX, mouseY ) {
+      camera.position.y -= mouseX * 0.05;
+      camera.position.y = Math.max( Math.min( camera.position.y, 1600 ), -1600 );
+      camera.lookAt( scene.position );
+    }
+  }
+];
+
 //INIT THREE JS, SCREEN AND MOUSE EVENTS
 
 function createScene() {
@@ -110,17 +161,25 @@ function createScene() {
   fieldOfView = 50;
   nearPlane = .1;
   farPlane = 10000;
-  camera = new THREE.PerspectiveCamera(
-    fieldOfView,
-    aspectRatio,
-    nearPlane,
-    farPlane
-    );
+  
   scene.fog = new THREE.Fog(0xf7d9aa, 100,950);
-  camera.position.x = -200;
-  camera.position.z = 0;
-  camera.position.y = game.planeDefaultHeight-100;
-  camera.lookAt(new THREE.Vector3(1, 0, 0));
+
+  for (var ii =  0; ii < views.length; ++ii ) {
+    var view = views[ii]; //copy by reference
+    if (view.name === "front-view"){
+      var camera = new THREE.PerspectiveCamera( fieldOfView, aspectRatio, nearPlane, farPlane );
+    }else{
+      var camera = new THREE.PerspectiveCamera( fieldOfView, 1/aspectRatio, nearPlane, farPlane );
+    }
+    camera.position.fromArray( view.eye );
+    camera.up.fromArray( view.up );
+    camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    view.camera = camera;
+  }
+
+
+
 
   renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   renderer.setSize(WIDTH, HEIGHT);
@@ -148,8 +207,19 @@ function handleWindowResize() {
   HEIGHT = window.innerHeight;
   WIDTH = window.innerWidth;
   renderer.setSize(WIDTH, HEIGHT);
-  camera.aspect = WIDTH / HEIGHT;
-  camera.updateProjectionMatrix();
+
+  for (var ii =  0; ii < views.length; ++ii ) {
+    var view = views[ii]; //copy by reference
+    var camera = view.camera;
+    if (view.name === "front-view"){
+      camera.aspect = WIDTH / HEIGHT;
+    }else{
+      camera.aspect =  HEIGHT / WIDTH;
+    }
+    
+    camera.updateProjectionMatrix();
+  }
+
 }
 
 function handleMouseMove(event) {
@@ -912,8 +982,22 @@ function loop(){
 
   //sky.moveClouds();
   sea.moveWaves();
+  
+  // renderer.render(scene, camera);
+  for ( var ii = 0; ii < views.length; ++ii ) {
+    var view = views[ii];
+    var camera = view.camera;
+    var left   = Math.floor( WIDTH  * view.left );
+    var top    = Math.floor( HEIGHT * view.top );
+    var width  = Math.floor( WIDTH  * view.width );
+    var height = Math.floor( HEIGHT * view.height );
 
-  renderer.render(scene, camera);
+    renderer.setViewport( left, top, width, height );
+    renderer.setScissor( left, top, width, height );
+    renderer.setScissorTest( true );
+    renderer.setClearColor( view.background );
+    renderer.render(scene, camera);
+  }
   requestAnimationFrame(loop);
 }
 
@@ -975,9 +1059,14 @@ function updatePlane(){
   airplane.mesh.rotation.z = (targetY-airplane.mesh.position.y)*deltaTime*game.planeRotXSensivity;
   airplane.mesh.rotation.x = (airplane.mesh.position.y-targetY)*deltaTime*game.planeRotZSensivity;
   var targetCameraZ = normalize(game.planeSpeed, game.planeMinSpeed, game.planeMaxSpeed, game.cameraNearPos, game.cameraFarPos);
-  camera.fov = normalize(mousePos.x,-1,1,40, 80);
-  camera.updateProjectionMatrix ()
-  camera.position.y += (airplane.mesh.position.y - camera.position.y)*deltaTime*game.cameraSensivity;
+
+  for ( var ii = 0; ii < views.length; ++ii ) {
+    var view = views[ii];
+    var camera = view.camera;
+    camera.fov = normalize(mousePos.x,-1,1,40, 80);
+    camera.updateProjectionMatrix ()
+    camera.position.y += (airplane.mesh.position.y - camera.position.y)*deltaTime*game.cameraSensivity;
+  }
 
   game.planeCollisionSpeedX += (0-game.planeCollisionSpeedX)*deltaTime * 0.03;
   game.planeCollisionDisplacementX += (0-game.planeCollisionDisplacementX)*deltaTime *0.01;
