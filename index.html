@@ -8,12 +8,20 @@
 		<link href="https://fonts.googleapis.com/css?family=Inconsolata" rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="css/demo.css" />
 		<link rel="stylesheet" type="text/css" href="css/game.css" />
+		<link rel="stylesheet" type="text/css" href="css/leaderboard.css" />
 		<script type="text/javascript" src="js/TweenMax.min.js"></script>
 		<script type="text/javascript" src="js/three.min.js"></script>
 		<script type="text/javascript" src="js/game.js" /></script>
+
+		<script src="https://cdn.firebase.com/js/client/2.0.4/firebase.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+		<script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
+		<script type="text/javascript" src="js/leaderboard.js" /></script>
 		<!--[if IE]>
 		  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
+
+		
 	</head>
 	<body>
 		<div class="game-holder" id="gameHolder">
@@ -21,6 +29,17 @@
 				
 			</div>
 			<div class="world" id="world"></div>
+			<!-- add leaderboard -->
+			<div class="message" id="leaderboard" style="display:none">
+				<!-- LEADERBOARD -->
+				<table id="leaderboardTable">
+					<tr class="score__label">
+					  <th>Rank</th>
+					  <!-- <th>Player</th> -->
+					  <th>Score</th>
+					</tr>
+				</table>
+			</div>
 			<div class="message message--replay" id="replayMessage">click to replay</div>
 			<div class="message message--instructions" id="instructions">
 
@@ -29,7 +48,7 @@
 						<div class="score__label">level</div>
 						<div class="score__value score__value--level" id="levelValue">1</div>
 						<svg class="level-circle" id="levelCircle" viewbox="0 0 200 200">
-							<circle id="levelCircleStroke" r="80" cx="100" cy="100" fill="none" stroke="#00ff00" stroke-width="14px" stroke-dasharray="502" />
+							<circle id="levelCircleStroke" r="80" cx="100" cy="100" fill="none" stroke="#00ff00" stroke-width="24px" stroke-dasharray="502" />
 						</svg>
 					</div>
 					<div class="score__content" id="dist">

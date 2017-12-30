@@ -106,7 +106,7 @@ var views = [
     width: 10/41.6,
     height: 16/26,
     background: "#000000",
-    eye: [ 0, 0, -300 ], 
+    eye: [ 0, 0, -200 ], 
     up: [ -1, 0, 0 ],
     fov: 50,
     updateCamera: function ( camera, scene, mouseX, mouseY ) {
@@ -138,7 +138,7 @@ var views = [
     width: 10/41.6,
     height: 16/26,
     background: "#000000",
-    eye: [ 0, 0, 300 ], //the plane flies from left to right in game; flies from right to left in hologram
+    eye: [ 0, 0, 200 ], //the plane flies from left to right in game; flies from right to left in hologram
     up: [ -1, 0, 0 ],
     fov: 50,
     updateCamera: function ( camera, scene, mouseX, mouseY ) {
@@ -239,6 +239,7 @@ function handleMouseUp(event){
   if (game.status == "waitingReplay"){
     resetGame();
     hideReplay();
+    hideLeaderboard();
   }
 }
 
@@ -247,6 +248,7 @@ function handleTouchEnd(event){
   if (game.status == "waitingReplay"){
     resetGame();
     hideReplay();
+    hideLeaderboard();
   }
 }
 
@@ -522,7 +524,7 @@ var AirPlane = function(){
    this.mesh = new THREE.Object3D();
    this.mesh.name = "airPlane";
    
-   var spaceShipJson = {"materials":[{"colorDiffuse":[0.0235,0.8,0],"transparent":false,"colorEmissive":[0.235,8,0],"shading":"lambert","opacity":1,"doubleSided":false,"wireframe":false,"DbgColor":15658734,"depthWrite":true,"blending":1,"depthTest":true,"DbgName":"Material","DbgIndex":0,"visible":true}],"faces":[2,0,1,2,0,2,2,3,0,0,2,0,3,1,0,2,4,3,1,0,2,2,5,4,0,2,4,5,3,0,2,2,3,5,0,2,2,6,4,0,2,4,6,1,0,2,2,1,6,0,3,3,1,7,8,0,2,1,4,7,0,2,3,4,8,0],"metadata":{"generator":"io_three","type":"Geometry","vertices":9,"materials":1,"faces":13,"version":3},"vertices":[0,6.26138e-08,1.43244,-0.25,-0.5,1.67321,0.000431893,-0.999846,-4.20314,0.25,-0.5,1.67321,0.000191267,-1.00163,1.91317,2.57795,-1.75249,1.67811,-2.5768,-1.75249,1.67811,-0.250423,-0.456516,2.07463,0.250423,-0.456516,2.07463]};
+   var spaceShipJson = {"materials":[{"colorDiffuse":[0.0235,0.8,0],"transparent":false,"colorEmissive":[0.235,8,0],"shading":"lambert","opacity":1,"doubleSided":false,"wireframe":false,"colorEmissive":[0.130841,16,0],"DbgColor":15658734,"depthWrite":true,"blending":1,"depthTest":true,"DbgName":"Material","DbgIndex":0,"visible":true}],"faces":[2,0,1,2,0,2,2,3,0,0,2,0,3,1,0,2,4,3,1,0,2,2,5,4,0,2,4,5,3,0,2,2,3,5,0,2,2,6,4,0,2,4,6,1,0,2,2,1,6,0,3,3,1,7,8,0,2,1,4,7,0,2,3,4,8,0],"metadata":{"generator":"io_three","type":"Geometry","vertices":9,"materials":1,"faces":13,"version":3},"vertices":[0,6.26138e-08,1.43244,-0.25,-0.5,1.67321,0.000431893,-0.999845,-2.27448,0.25,-0.5,1.67321,0.000191267,-1.00163,1.91317,2.57795,-1.75249,1.67811,-2.5768,-1.75249,1.67811,-0.250423,-0.456516,2.07463,0.250423,-0.456516,2.07463]};
 
    var loader = new THREE.JSONLoader();
    
@@ -962,6 +964,8 @@ function loop(){
 
     if (airplane.mesh.position.y <-200){
       showReplay();
+      pushNewRecord("", fieldDistance.innerHTML);
+      showLeaderboard();
       game.status = "waitingReplay";
 
     }

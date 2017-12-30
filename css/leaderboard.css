@@ -1,0 +1,28 @@
+/* --- COLOL SCHEME --- */
+/* light green: #00ff00 */
+
+#leaderboard{
+    color: #00ff00;
+}
+
+#leaderboardTable {
+    counter-reset: rank;           /* Set the counter to 0 */
+    color: #00ff00;
+    font-family: 'Inconsolata';
+    margin: auto;
+    text-align: center;
+}
+
+#leaderboardTable th{
+    width:80px;
+}
+
+#leaderboardTable .score__label th:nth-child(1){
+    border-right: 1px solid #ffffff;
+}
+.rank:before{
+    counter-increment: rank;      /* Increment the counter */
+    content: counter(rank) ". "; /* Display the counter */
+}
+
+
